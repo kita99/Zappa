@@ -626,7 +626,7 @@ class LambdaHandler:
 
                     return zappa_returndict
             elif event.get('httpMethod', None) and settings.ASGI:
-                return Mangum(self.wsgi_app)(event, context)
+                return Mangum(self.wsgi_app, lifespan="off")(event, context)
         except Exception as e:  # pragma: no cover
             # Print statements are visible in the logs either way
             print(e)
