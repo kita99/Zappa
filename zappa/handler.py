@@ -625,7 +625,10 @@ class LambdaHandler:
                     common_log(environ, response, response_time=response_time_ms)
 
                     return zappa_returndict
-            elif event.get('httpMethod', None) and settings.ASGI:
+            elif settings.ASGI:
+                if settings.ASGI_WEBSOCKET_BACKEND:
+                    return Mangum(self.wsgi_app, lifespan="off", dsn=settings.ASGI_WEBSOCKET_BACKEND)(event, context)
+
                 return Mangum(self.wsgi_app, lifespan="off")(event, context)
         except Exception as e:  # pragma: no cover
             # Print statements are visible in the logs either way

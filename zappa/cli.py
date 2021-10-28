@@ -2977,6 +2977,10 @@ class ZappaCLI:
         asgi = self.stage_config.get("asgi", False)
         settings_s += "ASGI=%s" % asgi
 
+        if asgi:
+            asgi_websocket_backend = self.stage_config.get("asgi_websocket_backend", False)
+            settings_s += "\nASGI_WEBSOCKET_BACKEND='%s'" % asgi_websocket_backend
+
         return settings_s
 
     def remove_local_zip(self):
