@@ -22,7 +22,7 @@ def get_django_wsgi(settings_module):
 
 
 def get_django_asgi(settings_module):
-    from django.core.asgi import get_asgi_application
+    from channels.routing import get_default_application
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
 
@@ -34,4 +34,4 @@ def get_django_asgi(settings_module):
         # https://github.com/django/django/commit/80d74097b4bd7186ad99b6d41d0ed90347a39b21
         django.setup()
 
-    return get_asgi_application()
+    return get_default_application()
