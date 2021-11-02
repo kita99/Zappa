@@ -10,6 +10,7 @@ import shutil
 import stat
 import sys
 from urllib.parse import urlparse
+import importlib
 
 import botocore
 import durationpy
@@ -628,3 +629,9 @@ def merge_headers(event):
     for h in multi_headers.keys():
         multi_headers[h] = ", ".join(multi_headers[h])
     return multi_headers
+
+
+def load_function_from_string(path):
+    module, callable = path.rsplit(".", 1)
+    module = importlib.import_module(module)
+    return getattr(module, callable)

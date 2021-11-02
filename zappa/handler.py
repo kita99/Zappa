@@ -10,6 +10,7 @@ import sys
 import tarfile
 import traceback
 from builtins import str
+import importlib
 
 import boto3
 from werkzeug.wrappers import Response
@@ -19,11 +20,11 @@ from mangum import Mangum
 # so handle both scenarios.
 try:
     from zappa.middleware import ZappaWSGIMiddleware
-    from zappa.utilities import merge_headers, parse_s3_url
+    from zappa.utilities import merge_headers, parse_s3_url, load_function_from_string
     from zappa.wsgi import common_log, create_wsgi_request
 except ImportError as e:  # pragma: no cover
     from .middleware import ZappaWSGIMiddleware
-    from .utilities import merge_headers, parse_s3_url
+    from .utilities import merge_headers, parse_s3_url, load_function_from_string
     from .wsgi import common_log, create_wsgi_request
 
 
@@ -626,10 +627,21 @@ class LambdaHandler:
 
                     return zappa_returndict
             elif settings.ASGI:
-                if settings.ASGI_WEBSOCKET_BACKEND:
-                    return Mangum(self.wsgi_app, lifespan="off", dsn=settings.ASGI_WEBSOCKET_BACKEND)(event, context)
+                mangum_kwargs = dict()
 
-                return Mangum(self.wsgi_app, lifespan="off")(event, context)
+                if settings.ASGI_WEBSOCKET_BACKEND:
+                    mangum_kwargs["dsn"] = settings.ASGI_WEBSOCKET_BACKEND
+
+                if settings.ASGI_WEBSOCKET_CONNECT_HOOK:
+                    mangum_kwargs["connect_hook"] = load_function_from_string(settings.ASGI_WEBSOCKET_CONNECT_HOOK)
+
+                if settings.ASGI_WEBSOCKET_DISCONNECT_HOOK:
+                    mangum_kwargs["disconnect_hook"] = load_function_from_string(settings.ASGI_WEBSOCKET_DISCONNECT_HOOK)
+
+                if settings.ASGI_WEBSOCKET_GATEWAY_ENDPOINT_URL:
+                    mangum_kwargs["api_gateway_endpoint_url"] = settings.ASGI_WEBSOCKET_GATEWAY_ENDPOINT_URL
+
+                return Mangum(self.wsgi_app, lifespan="off", **mangum_kwargs)(event, context)
         except Exception as e:  # pragma: no cover
             # Print statements are visible in the logs either way
             print(e)

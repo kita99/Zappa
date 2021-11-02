@@ -2981,6 +2981,15 @@ class ZappaCLI:
             asgi_websocket_backend = self.stage_config.get("asgi_websocket_backend", False)
             settings_s += "\nASGI_WEBSOCKET_BACKEND='%s'" % asgi_websocket_backend
 
+            asgi_websocket_connect_hook = self.stage_config.get("asgi_websocket_connect_hook", "")
+            settings_s += "\nASGI_WEBSOCKET_CONNECT_HOOK='%s'" % asgi_websocket_connect_hook
+
+            asgi_websocket_disconnect_hook = self.stage_config.get("asgi_websocket_disconnect_hook", "")
+            settings_s += "\nASGI_WEBSOCKET_DISCONNECT_HOOK='%s'" % asgi_websocket_disconnect_hook
+
+            asgi_websocket_gateway = self.stage_config.get("asgi_websocket_gateway_endpoint_url", False)
+            settings_s += "\nASGI_WEBSOCKET_GATEWAY_ENDPOINT_URL='%s'" % asgi_websocket_gateway
+
         return settings_s
 
     def remove_local_zip(self):
