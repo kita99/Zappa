@@ -43,8 +43,11 @@ async def group_send(key, data):
     print("zappa group_send: ", key)
     print("zappa group_send: ", data)
     async with websocket._Backend(websocket.dsn) as backend:
-        group = json.loads(await backend.retrieve(key))
-        print("zappa group_send retrieved group: ", group)
+        try:
+            group = json.loads(await backend.retrieve(key))
+            print("zappa group_send retrieved group: ", group)
+        except:
+            return
 
     data = json.dumps(data)
     body = data.encode()
